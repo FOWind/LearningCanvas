@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    #canvas {
+        border: 2px solid black;
+    }
+</style>
+
+<body>
+    <canvas id="canvas" width="480px" height="360px"></canvas>
+</body>
+<script>
+    let canvas = document.querySelector("#canvas")
+    let ctx = canvas.getContext("2d")
+
+    //绘制填充字体
+    ctx.fillText("绘制基本的矩形，线条和圆", 5, 15)
+
+    //绘制填充的矩形 fillRect(<x>,<y>,<width>,<height>)
+    ctx.fillRect(5, 20, 20, 20)
+
+    //为矩形描边  strokeRect(<x>,<y>,<width>,<height>)
+    ctx.strokeRect(28, 20, 20, 20)
+
+    //绘制线条 beginPath()->moveTo(<x>,<y>)->lineTo(<x>,<y>)->closePath()->stroke()
+    //begintPath()表示开始跟踪路径
+    //moveTo()方法表示将光标移动至制定点
+    //lineTo()方法表示从现在的点到指定的坐标的路径
+    //closePath()表示将路径闭合
+    //stroke()表示可以将路径描绘出来
+    ctx.beginPath()
+    ctx.moveTo(55, 20)
+    ctx.lineTo(75, 40)
+    ctx.closePath()
+    ctx.stroke()
+
+    //绘制基本圆形beginPath()->arc(<x>,<y>,<radius>,<startAngle>,<endAngle>,<anticlockwise>)
+    //->closrPath()->fill()
+    //startAngle和endAngle使用的是弧度而不是角度
+    ctx.beginPath()
+    ctx.arc(90, 30, 10, 0, Math.PI * 2, false)
+    ctx.closePath()
+    ctx.fill()
+
+    //修改绘制的样式
+    ctx.font="20px serif"
+    ctx.strokeText("修改样式基础", 5, 70)
+    //修改填充样式
+    ctx.fillStyle = "rgb(255,0,0)"
+    ctx.fillRect(5, 75, 20, 20)
+    //修改描边样式
+    ctx.strokeStyle = "rgb(0,255,0)"
+    ctx.strokeRect(30, 75, 20, 20)
+
+    //修改描边线宽
+    ctx.lineWidth = 5
+    ctx.beginPath()
+    ctx.moveTo(55, 85)
+    ctx.lineTo(75, 85)
+    ctx.closePath()
+    ctx.stroke()
+
+    //擦出画布基础
+    ctx.lineWidth = 1
+    ctx.strokeStyle="rgb(0,0,0)"
+    ctx.font="40px serif"
+    ctx.strokeText("修改样式基础", 5, 150)
+    ctx.clearRect(20,130,100,10)
+</script>
+
+</html>
