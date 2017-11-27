@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    #canvas {
+        border: 3px solid black;
+    }
+</style>
+
+<body>
+    <canvas id="canvas" width="720px" height="480px"></canvas>
+    <div>
+        <div>
+            <span>width:</span>
+            <input class="sizerange" id="width" type="range" min="1" max="200" value="0">
+            <span>height:</span>
+            <input class="sizerange" id="height" type="range" min="1" max="200" value="0">
+            <button id="drawRect">绘制矩形</button>
+        </div>
+    </div>
+</body>
+<script>
+    let canvas = document.querySelector("#canvas")
+    let ctx = canvas.getContext("2d")
+    let sizeranges = document.querySelectorAll(".sizerange")
+    let btn_draw = document.querySelector("#drawRect")
+    let nowPisition = 199;
+    let drawSpeed = 5
+    let widthValue = 0
+    let heightValue = 0
+    let nowW = 0
+    let nowH = 0
+    let x = 100
+    let y = 100
+    let drawList = []
+
+    let positionX = 100
+    let positionY = 100
+    let positionManager = {
+        x: 0,
+        y: 0
+    }
+    let eventBus = {
+        events: [],
+        curr: null,
+        run: function () {
+            if (this.curr == null && this.events.length > 0) {
+                this.curr = this.next()
+            }
+            if (!this.curr.finish) {
+                this.curr.handler()
+            } else {
+                this.curr = this.next()
+            }
+        },
+        next: function () {
+            return this.events.shift()
+        },
+        addEvent: function (e) {
+            this.events.push(e)
+        }
+    }
+
+    let drawEventObject = function (init, width, height, handler) {
+        this.finish = false
+        this.width = width
+        this.height = height
+        this.handler = handler
+        this.nowPosition = positionManager
+        this.initPosition = init
+        this.that = this
+        this.rha = null
+        eventBus.addEvent(this)
+        console.log(this)
+    }
+    ctx.font = "20px YaHei"
+
+    ctx.beginPath()
+    ctx.moveTo(0, 50)
+    ctx.lineTo(720, 50)
+    ctx.closePath()
+    ctx.stroke()
+
+    let writeText = () => {
+        let outputString = `准备绘制矩形：宽为${widthValue}高为${heightValue}`
+        ctx.clearRect(0, 0, 720, 40)
+        ctx.fillText(outputString, 30, 30)
+    }
+
+
+    sizeranges.forEach((item) => {
+        item.addEventListener("change", (e) => {
+            let target = e.target
+            if (target.id === "width") {
+                widthValue = target.value
+            } else if (target.id === "height") {
+                heightValue = target.value
+            }
+            console.log(widthValue, heightValue)
+            writeText()
+        })
+    })
+    btn_draw.addEventListener("click", () => {
+        ctx.clearRect(5, 60, 720, 420)
+        let toLeft = new drawEventObject({ x: 100, y: 100 }, widthValue, heightValue, function () {
+            let nextStep = drawSpeed;
+            ctx.beginPath()
+            ctx.moveTo(this.initPosition.x + this.nowPosition.x, this.initPosition.y + this.nowPosition.y)
+            if (this.nowPosition.x <= this.width - drawSpeed) {
+                nextStep = drawSpeed
+            } else {
+                nextStep = this.width - this.nowPosition.x
+                this.finish = true
+            }
+            this.nowPosition.x += nextStep
+            console.log(this.finish, this.initPosition.x + this.nowPosition.x)
+            ctx.lineTo(this.nowPosition.x + this.initPosition.x, this.initPosition.y + this.nowPosition.y)
+            ctx.closePath()
+            ctx.stroke()
+        })
+        let toBottom = new drawEventObject({ x: 100, y: 100 }, widthValue, heightValue, function () {
+            let nextStep = drawSpeed;
+            ctx.beginPath()
+            ctx.moveTo(this.initPosition.x + this.nowPosition.x, this.initPosition.y + this.nowPosition.y)
+            if (this.nowPosition.y <= this.height - drawSpeed) {
+                nextStep = drawSpeed
+            } else {
+                nextStep = this.height - this.nowPosition.y
+                this.finish = true
+            }
+            this.nowPosition.y += nextStep
+            console.log(this.finish, this.nowPosition.y)
+            ctx.lineTo(this.nowPosition.x + this.initPosition.x, this.initPosition.y + this.nowPosition.y)
+            ctx.closePath()
+            ctx.stroke()
+        })
+        let toRight = new drawEventObject({ x: 100, y: 100 }, widthValue, heightValue, function () {
+            let nextStep = drawSpeed;
+            ctx.beginPath()
+            ctx.moveTo(this.initPosition.x + this.nowPosition.x, this.initPosition.y + this.nowPosition.y)
+            if (this.nowPosition.x >= drawSpeed) {
+                nextStep = drawSpeed
+            } else {
+                nextStep = this.nowPosition.x
+                this.finish = true
+            }
+            this.nowPosition.x -= nextStep
+            console.log(this.finish, this.nowPosition.y)
+            ctx.lineTo(this.nowPosition.x + this.initPosition.x, this.initPosition.y + this.nowPosition.y)
+            ctx.closePath()
+            ctx.stroke()
+        })
+        let toTop = new drawEventObject({ x: 100, y: 100 }, widthValue, heightValue, function () {
+            let nextStep = drawSpeed;
+            ctx.beginPath()
+            ctx.moveTo(this.initPosition.x + this.nowPosition.x, this.initPosition.y + this.nowPosition.y)
+            if (this.nowPosition.y >= drawSpeed) {
+                nextStep = drawSpeed
+            } else {
+                nextStep = this.nowPosition.y
+                this.finish = true
+            }
+            this.nowPosition.y -= nextStep
+            console.log(this.finish, this.nowPosition.y)
+            ctx.lineTo(this.nowPosition.x + this.initPosition.x, this.initPosition.y + this.nowPosition.y)
+            ctx.closePath()
+            ctx.stroke()
+        })
+        let drawRect = () => {
+            eventBus.run()
+            requestAnimationFrame(drawRect)
+        }
+        requestAnimationFrame(drawRect)
+    })
+</script>
+
+</html>
